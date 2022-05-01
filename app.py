@@ -1,17 +1,3 @@
-#  - GET / that returns some kind of Hello World message: it could be an introduction the dataset, a rough description, etc.
-#  - PUT /flowers that takes a Flower and stores it in the database (that you need to create as well)
-#  - GET /flowers that takes no parameters and returns all Flowers currently in the database
-#  - GET /flowers/{genus} that takes a genus of flower and returns all observations of that genus
-#  - GET /flowers/{genus}/{species} that takes a species of flower and returns all observations of that species
-#  - GET /flowers/{genus}/{species}/petals/avg that takes a species of flower and returns the average petal count across observations
-#  - GET /flowers/{genus}/{species}/petals/min that takes a species of flower and returns the minimum petal count across observations
-#  - GET /flowers/{genus}/{species}/petals/max that takes a species of flower and returns the maximum petal count across observations
-
-# A Flower should only be accepted with
-# - its binomial nomenclature (Genus species, with Genus being capitalized, a space, and then species) as a string
-# - a count of how many petals observed (positive integers and 0)
-# - a color as a string
-
 import sqlite3
 from fastapi import FastAPI, HTTPException, Request
 
@@ -161,6 +147,11 @@ async def put_flower(flower_data: Request):
 
     '''
     flower_data = await flower_data.json()
+    flower_data_params = flower_data.keys()
+
+    # Raise a bad request exception if the parameters are not properly defined.
+    if (len(flower_data_params) != 3 or "binomial_nomenclature" not in flower_data_params or "petal_count" not in flower_data_params or "color" not in flower_data_params):
+        raise HTTPException(status_code=400, detail="Bad request")
 
     flower_id_sequence = cursor.execute(
         '''
