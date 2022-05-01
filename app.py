@@ -59,7 +59,6 @@ async def get_all_flowers():
     query_result = cursor.execute(
         '''SELECT * FROM Flowers'''
     ).fetchall()
-    print(query_result)
     response = response_formatter(query_result)
 
     if response:
@@ -115,26 +114,27 @@ async def get_aggregate_result(genus, species, aggregation_type):
     MAX, MIN and AVERAGE are aggregate function. We can utilize a single function
     If we take in the aggregation type as a URL or path parameter.
     '''
+    aggregation_func: str
     if aggregation_type.lower() == "avg":
-        return cursor.execute(
-            f'''SELECT AVG(petal_count) FROM Flowers 
-            WHERE genus=? AND species = ?''',
-            [genus, species]
-        ).fetchall()[0][0]
+        aggregation_func = "AVG"
 
-    if aggregation_type.lower() == "min":
-        return cursor.execute(
-            f'''SELECT MIN(petal_count) FROM Flowers 
-            WHERE genus=? AND species = ?''',
-            [genus, species]
-        ).fetchall()[0][0]
+    elif aggregation_type.lower() == "min":
+        aggregation_func = "MIN"
 
-    if aggregation_type.lower() == "max":
-        return cursor.execute(
-            f'''SELECT MAX(petal_count) FROM Flowers 
+    elif aggregation_type.lower() == "max":
+        aggregation_func = "MAX"
+
+    else:
+        raise HTTPException(
+            status_code=404, detail="The specified aggregation is unavailable")
+
+    query_result = cursor.execute(
+        f'''SELECT {aggregation_func}(petal_count) FROM Flowers
             WHERE genus=? AND species = ?''',
-            [genus, species]
-        ).fetchall()[0][0]
+        [genus, species]
+    ).fetchall()[0][0]
+
+    return query_result
 
 
 @app.put('/flowers')
