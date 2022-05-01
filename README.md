@@ -4,6 +4,12 @@
 ## Usage
 ### To initialize
 >python -m uvicorn app:app
+
+By default, uvicorn starts at port 8000. To specify a port (here, port 6969):
+>python -m uvicorn app:app --port 6969
+
+To enable reload (for development server):
+>python -m uvicorn app:app --reload
 ### GET Requests
 1. Getting a simple message: 
     >/
